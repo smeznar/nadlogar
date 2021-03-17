@@ -1,4 +1,5 @@
 import random
+import sympy
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -128,3 +129,35 @@ class IskanjeNicelPolinoma(Problem):
             nicle = {nicla}
         polinom = f"x^{self.stevilo_nicel} - {nicla ** self.stevilo_nicel}"
         return {"nicle": nicle, "polinom": polinom}
+
+
+# region Razstavljanje
+
+
+class RazstaviVieta(Problem):
+    """
+    Naloga za razstavljanje s pomočjo Vietovega pravila.
+    :param minimalna_vrednost: najmanjša možna vrednost razstavljenega člena
+    :param maksimalna_vrednost: največja možna vrednost razstavljenega člena
+    :param minimalen_vodilni_koeficient: najmanjša možna vrednost vodilnega koeficienta
+    :param maksimalen_vodilni_koeficient: največja možna vrednost vodilnega koeficienta
+    """
+
+    minimalna_vrednost = models.SmallIntegerField(default=-9)
+    maksimalna_vrednost = models.SmallIntegerField(default=9)
+    minimalen_vodilni_koeficient = models.SmallIntegerField(default=1)
+    maksimalen_vodilni_koeficient = models.SmallIntegerField(default=1)
+
+    def generate(self):
+        x1 = random.randint(self.minimalna_vrednost, self.maksimalna_vrednost)
+        x2 = random.randint(self.minimalna_vrednost, self.maksimalna_vrednost)
+        a = random.randint(
+            self.minimalen_vodilni_koeficient, self.maksimalen_vodilni_koeficient
+        )
+        x = sympy.symbols("x")
+        izraz = sympy.Mul(a, (x - x1), (x - x2), evaluate=False)
+        polinom = str(sympy.poly(izraz).expr).replace("**", "^")
+        return {"izraz": polinom, "x1": x1, "x2": x2}
+
+
+# endregion
